@@ -1,0 +1,324 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bewertung – Weiterleitung</title>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --card: #ffffff;
+      --text: #1c1c1c;
+      --muted: #6b6b6b;
+      --accent: #111111;
+      --success: #0f8a4b;
+      --error: #c62828;
+      --border: #e6e6e3;
+      --star-on: #f5b301;
+      --star-off: #d6d6d1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #f7f7f5 0%, #f0f0ee 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    .headline {
+      font-size: 22px;
+      margin: 0 0 8px 0;
+      letter-spacing: 0.2px;
+    }
+
+    .subline {
+      margin: 0 0 20px 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .stars {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin: 16px 0 6px 0;
+      user-select: none;
+    }
+
+    .star {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.08s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .star:hover {
+      transform: translateY(-2px);
+      border-color: #cfcfcb;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+
+    .star .icon {
+      width: 26px;
+      height: 26px;
+      color: var(--star-off);
+      transition: color 0.2s ease;
+    }
+
+    .star.active .icon,
+    .star.hovered .icon {
+      color: var(--star-on);
+    }
+
+    .star .label {
+      position: absolute;
+      bottom: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .selected {
+      margin: 10px 0 0 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .form {
+      margin-top: 18px;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+      display: none;
+    }
+
+    .form.visible { display: block; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 12px 0 6px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    textarea, input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background: #fff;
+    }
+
+    textarea:focus, input:focus {
+      border-color: #bdbdb8;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
+    }
+
+    button {
+      margin-top: 14px;
+      width: 100%;
+      height: 46px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.08s ease;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.visible { display: block; }
+    .status.success { color: var(--success); }
+    .status.error { color: var(--error); }
+
+    @media (min-width: 640px) {
+      .headline { font-size: 24px; }
+      .star { height: 64px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" id="app">
+    <h1 class="headline" id="headline"></h1>
+    <p class="subline">Bitte wähle eine Bewertung aus. Bei 4–5 Sternen leiten wir dich direkt zu Google weiter.</p>
+
+    <div class="stars" id="stars"></div>
+    <p class="selected" id="selected">Noch keine Auswahl.</p>
+
+    <form class="form" id="form" novalidate>
+      <label for="message">Feedback</label>
+      <textarea id="message" rows="4" minlength="5" required placeholder="Was können wir verbessern?"></textarea>
+
+      <label for="email">E-Mail (optional)</label>
+      <input id="email" type="email" placeholder="name@example.com" />
+
+      <button id="submit" type="submit">Feedback senden</button>
+      <div class="status" id="status"></div>
+    </form>
+  </main>
+
+  <script>
+    // Konfiguration
+    const BUSINESS_NAME = "Beispiel Business";
+    const GOOGLE_REVIEW_URL = "https://coiffuregalerie.ch";
+    const FEEDBACK_ENDPOINT = "/api/feedback";
+
+    const headline = document.getElementById("headline");
+    const starsWrap = document.getElementById("stars");
+    const selected = document.getElementById("selected");
+    const form = document.getElementById("form");
+    const message = document.getElementById("message");
+    const email = document.getElementById("email");
+    const submit = document.getElementById("submit");
+    const status = document.getElementById("status");
+
+    headline.textContent = `Bewertung für ${BUSINESS_NAME}`;
+
+    let currentRating = 0;
+
+    const labels = ["1 Stern", "2 Sterne", "3 Sterne", "4 Sterne", "5 Sterne"];
+
+    function renderStars() {
+      starsWrap.innerHTML = "";
+      for (let i = 1; i <= 5; i += 1) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "star";
+        btn.dataset.value = String(i);
+        btn.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M12 2.5l2.94 6.06 6.69.97-4.84 4.71 1.14 6.64L12 17.9l-5.93 3.12 1.14-6.64L2.37 9.53l6.69-.97L12 2.5z" />
+          </svg>
+          <span class="label">${labels[i - 1]}</span>
+        `;
+
+        btn.addEventListener("mouseenter", () => setHover(i));
+        btn.addEventListener("mouseleave", () => setHover(0));
+        btn.addEventListener("click", () => selectRating(i));
+        starsWrap.appendChild(btn);
+      }
+      updateStarState();
+    }
+
+    function setHover(value) {
+      [...starsWrap.children].forEach((el, idx) => {
+        el.classList.toggle("hovered", value > 0 && idx < value);
+      });
+    }
+
+    function updateStarState() {
+      [...starsWrap.children].forEach((el, idx) => {
+        el.classList.toggle("active", idx < currentRating);
+      });
+    }
+
+    function resetStatus() {
+      status.textContent = "";
+      status.className = "status";
+    }
+
+    function selectRating(value) {
+      currentRating = value;
+      updateStarState();
+      selected.textContent = `Ausgewählt: ${labels[value - 1]}`;
+      resetStatus();
+
+      if (value >= 4) {
+        window.location.href = GOOGLE_REVIEW_URL;
+        return;
+      }
+
+      if (value >= 1 && value <= 3) {
+        form.classList.add("visible");
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      resetStatus();
+
+      const msg = message.value.trim();
+      if (msg.length < 5) {
+        status.textContent = "Bitte mindestens 5 Zeichen eingeben.";
+        status.classList.add("visible", "error");
+        return;
+      }
+
+      submit.disabled = true;
+
+      try {
+        const res = await fetch(FEEDBACK_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            businessName: BUSINESS_NAME,
+            rating: currentRating,
+            message: msg,
+            email: email.value.trim() || null,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error("HTTP_ERROR");
+        }
+
+        const data = await res.json();
+        if (!data || data.success !== true) {
+          throw new Error("BAD_RESPONSE");
+        }
+
+        status.textContent = "Danke für dein Feedback.";
+        status.classList.add("visible", "success");
+        form.reset();
+      } catch (err) {
+        status.textContent = "Fehler beim Senden. Bitte später erneut versuchen.";
+        status.classList.add("visible", "error");
+      } finally {
+        submit.disabled = false;
+      }
+    });
+
+    renderStars();
+  </script>
+</body>
+</html>
