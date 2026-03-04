@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Bewertung – Frey Gartenbau</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --moss:    #2d5a3d;
+      --sage:    #4a7c5a;
+      --fern:    #6da077;
+      --bark:    #5c4a35;
+      --gold:    #c9a84c;
+      --gold-l:  #e8c96a;
+      --text-dk: #1a2518;
+      --text-md: #3d4f3a;
+      --text-lt: #6b7d67;
+      --star-on: #c9a84c;
+      --star-off:#c8d4c4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─────────────────────────────────────────
+       BASE: mobile-first, normal scroll
+    ───────────────────────────────────────── */
+    html {
+      height: 100%;
+    }
+    body {
+      font-family: "DM Sans", sans-serif;
+      min-height: 100%;
+      /* Normal scroll — no overflow:hidden */
+      background: #0e1f13;
+      position: relative;
+    }
+
+    /* ── FIXED BACKGROUND (doesn't scroll) ── */
+    .bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .sky {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 100% 55% at 50% 0%,   #1f4a28 0%, transparent 65%),
+        radial-gradient(ellipse 80%  40% at 20% 10%,  #2a5e34 0%, transparent 55%),
+        radial-gradient(ellipse 120% 60% at 50% 100%, #080f09 0%, transparent 70%),
+        linear-gradient(180deg, #16321e 0%, #0e1a11 55%, #080e0a 100%);
+    }
+
+    .sunlight {
+      position: absolute;
+      top: -15%; left: 50%; transform: translateX(-50%);
+      width: 80%; height: 60%;
+      background: radial-gradient(ellipse at 50% 0%, rgba(200,230,160,0.13) 0%, transparent 70%);
+      filter: blur(25px);
+      animation: breathe 12s ease-in-out infinite;
+    }
+    @keyframes breathe { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+    .shaft {
+      position: absolute; top: -5%; height: 100%; width: 100px;
+      background: linear-gradient(180deg, rgba(220,255,200,0.055) 0%, transparent 80%);
+      filter: blur(22px); border-radius: 50%;
+      transform-origin: top center;
+    }
+    .s1{left:18%;animation:sw 18s ease-in-out infinite;}
+    .s2{left:48%;animation:sw 23s ease-in-out infinite reverse;width:140px;opacity:.7;}
+    .s3{left:74%;animation:sw 15s ease-in-out infinite 3s;opacity:.5;}
+    @keyframes sw{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(5deg)}}
+
+    .mist {
+      position: absolute;
+      bottom: -8%; left: -20%; right: -20%; height: 50%;
+      background: radial-gradient(ellipse 100% 55% at 50% 100%, rgba(100,160,100,0.09) 0%, transparent 70%);
+      filter: blur(18px);
+      animation: mistDrift 28s ease-in-out infinite;
+    }
+    @keyframes mistDrift{0%,100%{transform:translateX(0)}50%{transform:translateX(2.5%)}}
+
+    /* Plants */
+    .plant {
+      position: absolute; bottom: 0;
+      transform-origin: bottom center;
+    }
+    .sw1{animation:sway1 6s   ease-in-out infinite; animation-delay:-1s;}
+    .sw2{animation:sway2 7.5s ease-in-out infinite; animation-delay:-3s;}
+    .sw3{animation:sway1 5.5s ease-in-out infinite; animation-delay:-2s;}
+    .sw4{animation:sway2 8.5s ease-in-out infinite; animation-delay:-4s;}
+    .sw5{animation:sway1 7s   ease-in-out infinite; animation-delay:-2.5s;}
+    @keyframes sway1{0%,100%{transform:rotate(0)}30%{transform:rotate(-2.5deg)}70%{transform:rotate(2deg)}}
+    @keyframes sway2{0%,100%{transform:rotate(0)}30%{transform:rotate(2.5deg)}70%{transform:rotate(-2deg)}}
+
+    .grass-svg { position:absolute; bottom:0; left:-5%; width:110%; }
+
+    .particle {
+      position:absolute; border-radius:50%;
+      background:rgba(240,255,210,0.65);
+      animation:floatUp linear infinite;
+    }
+    @keyframes floatUp{
+      0%{transform:translateY(0) translateX(0) scale(1);opacity:0;}
+      8%{opacity:1;} 92%{opacity:.4;}
+      100%{transform:translateY(-95vh) translateX(var(--dx)) scale(.3);opacity:0;}
+    }
+
+    /* ─────────────────────────────────────────
+       PAGE WRAPPER — centres card, allows scroll
+    ───────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px 40px;
+    }
+
+    /* ─────────────────────────────────────────
+       CARD
+    ───────────────────────────────────────── */
+    .shell {
+      width: 100%;
+      max-width: 480px;
+      animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes riseIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+    .card {
+      background: rgba(248,244,237,0.97);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow:
+        0 4px 6px rgba(0,0,0,0.07),
+        0 20px 60px rgba(0,0,0,0.45),
+        0 60px 120px rgba(0,0,0,0.25);
+    }
+
+    /* parchment noise */
+    .card-inner {
+      position: relative;
+      padding: 28px 24px 32px;
+    }
+    .card-inner::before {
+      content:""; position:absolute; inset:0; pointer-events:none; opacity:.02;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>");
+    }
+
+    /* ── LOGO BANNER ── */
+    .brand {
+      background: #ffffff;
+      border-bottom: 1px solid rgba(168,201,160,0.28);
+      padding: 28px 24px 24px;
+      text-align: center;
+    }
+    .logo { width: min(240px, 70vw); height: auto; display: inline-block; }
+
+    /* ── HEADLINE ── */
+    .headline {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(20px, 5.5vw, 26px);
+      font-weight: 500;
+      color: var(--text-dk);
+      text-align: center;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .subline {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-lt);
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* ── STARS ── */
+    .stars {
+      display: grid;
+      grid-template-columns: repeat(5,1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+      user-select: none;
+      /* make touch targets big enough on mobile */
+      touch-action: manipulation;
+    }
+    .star-btn {
+      appearance: none;
+      border: 1.5px solid rgba(45,90,61,0.38);
+      background: rgba(255,255,255,.88);
+      border-radius: 16px;
+      padding: 16px 4px 12px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+      cursor: pointer;
+      /* min touch target */
+      min-height: 72px;
+      box-shadow: 0 2px 6px rgba(20,50,25,0.1), inset 0 1px 0 rgba(255,255,255,0.95);
+      transition: all .18s cubic-bezier(.34,1.56,.64,1);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .star-btn:active { transform: scale(0.96); }
+    @media(hover:hover){
+      .star-btn:hover{transform:translateY(-3px) scale(1.05);border-color:rgba(45,90,61,0.65);box-shadow:0 8px 20px rgba(30,60,40,.18),inset 0 1px 0 rgba(255,255,255,0.95);background:#fff;}
+    }
+
+    .star-icon{width:28px;height:28px;color:var(--star-off);transition:color .15s,transform .15s,filter .15s;}
+    .star-num {font-size:11px;font-weight:500;color:var(--text-lt);transition:color .15s;}
+
+    .star-btn.lit,.star-btn.preview{background:rgba(255,251,240,.98);border-color:rgba(201,168,76,.5);}
+    .star-btn.lit .star-icon,.star-btn.preview .star-icon{color:var(--star-on);filter:drop-shadow(0 2px 8px rgba(201,168,76,.6));transform:scale(1.12);}
+    .star-btn.lit .star-num,.star-btn.preview .star-num{color:var(--bark);}
+
+    /* ── PILL ── */
+    .pill-wrap{min-height:32px;display:flex;justify-content:center;align-items:center;margin-bottom:4px;}
+    .pill{
+      display:inline-flex;align-items:center;
+      padding:6px 18px;border-radius:999px;
+      background:rgba(45,90,61,.07);border:1px solid rgba(45,90,61,.15);
+      color:var(--moss);font-size:13px;font-weight:500;
+      opacity:0;transform:translateY(4px);
+      transition:opacity .2s,transform .2s;
+    }
+    .pill.show{opacity:1;transform:translateY(0);}
+    .pill.gold{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.3);color:#7a5e1a;}
+
+    /* ── FORM ── */
+    .form-panel{display:none;margin-top:24px;padding-top:24px;border-top:1px solid rgba(168,201,160,.35);animation:riseIn .35s cubic-bezier(.22,1,.36,1) both;}
+    .form-panel.visible{display:block;}
+
+    .form-title{font-family:"Playfair Display",serif;font-size:18px;font-style:italic;font-weight:500;color:var(--text-dk);margin-bottom:3px;}
+    .form-subtitle{font-size:12.5px;color:var(--text-lt);margin-bottom:18px;}
+    .field-label{display:block;font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text-md);margin-bottom:6px;}
+    .field-wrap{position:relative;margin-bottom:14px;}
+    .field-wrap svg{position:absolute;left:13px;top:14px;width:16px;height:16px;color:var(--fern);pointer-events:none;}
+
+    textarea, input[type="email"]{
+      width:100%;border:1.5px solid rgba(168,201,160,.55);border-radius:14px;
+      /* font-size 16px prevents iOS auto-zoom */
+      padding:13px 13px 13px 40px;
+      font-family:"DM Sans",sans-serif;font-size:16px;color:var(--text-dk);
+      background:rgba(255,255,255,.85);outline:none;resize:none;
+      -webkit-appearance:none;
+      transition:border-color .2s,box-shadow .2s,background .2s;
+    }
+    textarea:focus,input:focus{border-color:var(--sage);box-shadow:0 0 0 3px rgba(74,124,90,.1);background:#fff;}
+    textarea::placeholder,input::placeholder{color:#b5bfb2;}
+
+    .submit-btn{
+      width:100%;height:52px;border:none;border-radius:14px;
+      background:linear-gradient(135deg,#2d5a3d 0%,#1a3320 100%);
+      color:#f5f0e8;font-family:"DM Sans",sans-serif;font-size:16px;font-weight:500;
+      letter-spacing:.04em;cursor:pointer;margin-top:4px;
+      box-shadow:0 4px 16px rgba(26,51,32,.3);
+      transition:opacity .2s,transform .1s,box-shadow .2s;
+      position:relative;overflow:hidden;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .submit-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.09) 0%,transparent 100%);}
+    .submit-btn:active{opacity:.88;transform:scale(.98);}
+    @media(hover:hover){.submit-btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 7px 22px rgba(26,51,32,.4);}}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+    .status-msg{margin-top:10px;font-size:13.5px;text-align:center;display:none;padding:11px 14px;border-radius:12px;}
+    .status-msg.visible{display:block;}
+    .status-msg.success{background:rgba(45,90,61,.08);border:1px solid rgba(45,90,61,.2);color:var(--moss);}
+    .status-msg.error{background:rgba(176,30,30,.06);border:1px solid rgba(176,30,30,.15);color:#8b1a1a;}
+
+    /* ── THANK YOU SCREEN ── */
+    .thankyou {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px 44px;
+      animation: riseIn .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    .thankyou.visible { display: flex; }
+
+    .ty-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #2d5a3d, #1a3320);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 28px rgba(26,51,32,0.3);
+    }
+    .ty-icon svg { width: 36px; height: 36px; color: #f5f0e8; }
+
+    .ty-title {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(22px, 6vw, 28px);
+      font-weight: 500;
+      color: var(--text-dk);
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+    .ty-sub {
+      font-size: 14.5px;
+      color: var(--text-lt);
+      font-weight: 300;
+      line-height: 1.65;
+      max-width: 280px;
+    }
+    .ty-divider {
+      width: 48px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      border-radius: 2px;
+      margin: 20px auto;
+    }
+
+    .footer-text{text-align:center;margin-top:18px;font-size:12px;color:rgba(180,210,170,.4);letter-spacing:.04em;}
+
+    /* ─────────────────────────────────────────
+       DESKTOP: bigger, keep plants/grass visible
+    ───────────────────────────────────────── */
+    @media(min-width:700px){
+      .page { padding: 40px 24px 56px; }
+      .brand { padding: 36px 40px 30px; }
+      .logo  { width: min(280px, 55vw); }
+      .card-inner { padding: 36px 40px 44px; }
+      .headline { font-size: clamp(22px, 4vw, 28px); margin-bottom: 10px; }
+      .subline  { font-size: 14.5px; margin-bottom: 32px; }
+      .stars    { gap: 10px; }
+      .star-btn { padding: 18px 6px 13px; border-radius: 18px; min-height: 82px; }
+      .star-icon{ width: 32px; height: 32px; }
+      .star-num { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ BACKGROUND (fixed, doesn't scroll) ═══ -->
+<div class="bg">
+  <div class="sky"></div>
+  <div class="sunlight"></div>
+  <div class="shaft s1"></div>
+  <div class="shaft s2"></div>
+  <div class="shaft s3"></div>
+  <div class="mist"></div>
+
+  <!-- BACK PLANTS -->
+  <svg class="plant sw4" style="left:11%;width:clamp(80px,11vw,145px)" viewBox="0 0 110 360" fill="none">
+    <path d="M55 360 Q53 290 55 220 Q57 150 54 70 Q53 35 55 0" stroke="#1e4828" stroke-width="2.2" fill="none"/>
+    <path d="M55 305 Q25 285 6 255" stroke="#1e4828" stroke-width="1.4" fill="none"/><path d="M6 255 Q22 247 38 258 Q49 278 55 305Z" fill="#1e4828" opacity=".85"/>
+    <path d="M55 262 Q85 244 103 214" stroke="#163c20" stroke-width="1.4" fill="none"/><path d="M103 214 Q87 208 72 218 Q63 237 55 262Z" fill="#163c20" opacity=".85"/>
+    <path d="M54 220 Q26 200 9 170" stroke="#1e4828" stroke-width="1.4" fill="none"/><path d="M9 170 Q25 163 40 173 Q50 191 54 220Z" fill="#1e4828" opacity=".8"/>
+    <path d="M56 178 Q86 158 103 128" stroke="#163c20" stroke-width="1.4" fill="none"/><path d="M103 128 Q88 123 74 132 Q65 150 56 178Z" fill="#163c20" opacity=".8"/>
+    <path d="M54 136 Q27 115 12 84" stroke="#1e4828" stroke-width="1.3" fill="none"/><path d="M12 84 Q28 78 42 88 Q51 105 54 136Z" fill="#1e4828" opacity=".65"/>
+  </svg>
+  <svg class="plant sw5" style="right:11%;width:clamp(80px,11vw,145px);transform:scaleX(-1)" viewBox="0 0 110 360" fill="none">
+    <path d="M55 360 Q53 290 55 220 Q57 150 54 70 Q53 35 55 0" stroke="#1e4828" stroke-width="2.2" fill="none"/>
+    <path d="M55 305 Q25 285 6 255" stroke="#1e4828" stroke-width="1.4" fill="none"/><path d="M6 255 Q22 247 38 258 Q49 278 55 305Z" fill="#1e4828" opacity=".85"/>
+    <path d="M55 262 Q85 244 103 214" stroke="#163c20" stroke-width="1.4" fill="none"/><path d="M103 214 Q87 208 72 218 Q63 237 55 262Z" fill="#163c20" opacity=".85"/>
+    <path d="M54 220 Q26 200 9 170" stroke="#1e4828" stroke-width="1.4" fill="none"/><path d="M9 170 Q25 163 40 173 Q50 191 54 220Z" fill="#1e4828" opacity=".8"/>
+    <path d="M56 178 Q86 158 103 128" stroke="#163c20" stroke-width="1.4" fill="none"/><path d="M103 128 Q88 123 74 132 Q65 150 56 178Z" fill="#163c20" opacity=".8"/>
+  </svg>
+
+  <!-- FOREGROUND PLANTS -->
+  <svg class="plant sw1" style="left:-1%;width:clamp(60px,9vw,115px)" viewBox="0 0 100 300" fill="none">
+    <path d="M50 300 Q48 240 50 180 Q52 120 48 55 Q47 28 50 0" stroke="#1a4224" stroke-width="2" fill="none"/>
+    <path d="M50 252 Q22 234 5 206" stroke="#1a4224" stroke-width="1.4" fill="none"/><path d="M5 206 Q20 199 34 209 Q44 229 50 252Z" fill="#1a4224"/>
+    <path d="M50 208 Q78 190 93 162" stroke="#133318" stroke-width="1.4" fill="none"/><path d="M93 162 Q78 156 65 166 Q57 184 50 208Z" fill="#133318"/>
+    <path d="M49 166 Q23 148 8 120" stroke="#1a4224" stroke-width="1.3" fill="none"/><path d="M8 120 Q23 113 37 123 Q46 141 49 166Z" fill="#1a4224"/>
+  </svg>
+  <svg class="plant sw2" style="left:5%;width:clamp(48px,7vw,98px)" viewBox="0 0 90 260" fill="none">
+    <path d="M45 260 Q43 208 45 158 Q47 108 44 48 Q43 22 45 0" stroke="#22562e" stroke-width="1.8" fill="none"/>
+    <path d="M45 218 Q20 202 5 176" stroke="#22562e" stroke-width="1.3" fill="none"/><path d="M5 176 Q19 169 31 180 Q40 197 45 218Z" fill="#22562e"/>
+    <path d="M45 178 Q70 162 83 136" stroke="#194220" stroke-width="1.3" fill="none"/><path d="M83 136 Q69 130 58 140 Q51 157 45 178Z" fill="#194220"/>
+  </svg>
+  <svg class="plant sw1" style="right:-1%;width:clamp(60px,9vw,115px);transform:scaleX(-1)" viewBox="0 0 100 300" fill="none">
+    <path d="M50 300 Q48 240 50 180 Q52 120 48 55 Q47 28 50 0" stroke="#1a4224" stroke-width="2" fill="none"/>
+    <path d="M50 252 Q22 234 5 206" stroke="#1a4224" stroke-width="1.4" fill="none"/><path d="M5 206 Q20 199 34 209 Q44 229 50 252Z" fill="#1a4224"/>
+    <path d="M50 208 Q78 190 93 162" stroke="#133318" stroke-width="1.4" fill="none"/><path d="M93 162 Q78 156 65 166 Q57 184 50 208Z" fill="#133318"/>
+    <path d="M49 166 Q23 148 8 120" stroke="#1a4224" stroke-width="1.3" fill="none"/><path d="M8 120 Q23 113 37 123 Q46 141 49 166Z" fill="#1a4224"/>
+  </svg>
+  <svg class="plant sw2" style="right:5%;width:clamp(48px,7vw,98px);transform:scaleX(-1)" viewBox="0 0 90 260" fill="none">
+    <path d="M45 260 Q43 208 45 158 Q47 108 44 48 Q43 22 45 0" stroke="#22562e" stroke-width="1.8" fill="none"/>
+    <path d="M45 218 Q20 202 5 176" stroke="#22562e" stroke-width="1.3" fill="none"/><path d="M5 176 Q19 169 31 180 Q40 197 45 218Z" fill="#22562e"/>
+    <path d="M45 178 Q70 162 83 136" stroke="#194220" stroke-width="1.3" fill="none"/><path d="M83 136 Q69 130 58 140 Q51 157 45 178Z" fill="#194220"/>
+  </svg>
+
+  <!-- GRASS -->
+  <svg class="grass-svg" viewBox="0 0 1100 200" preserveAspectRatio="none" fill="none">
+    <g fill="#1e4a2a" opacity=".6">
+      <path d="M0 200 Q8 150 5 110 Q3 145 12 200Z"/><path d="M22 200 Q30 145 26 105 Q24 142 34 200Z"/><path d="M44 200 Q53 152 49 112 Q47 148 57 200Z"/><path d="M68 200 Q76 148 72 108 Q70 145 80 200Z"/><path d="M92 200 Q100 150 96 110 Q94 147 104 200Z"/><path d="M116 200 Q124 146 120 108 Q118 144 128 200Z"/><path d="M140 200 Q148 152 144 112 Q142 148 152 200Z"/><path d="M164 200 Q172 148 168 108 Q166 145 176 200Z"/><path d="M188 200 Q196 150 192 110 Q190 147 200 200Z"/><path d="M212 200 Q220 146 216 106 Q214 143 224 200Z"/><path d="M236 200 Q244 152 240 112 Q238 148 248 200Z"/><path d="M260 200 Q268 148 264 108 Q262 145 272 200Z"/><path d="M284 200 Q292 150 288 110 Q286 147 296 200Z"/><path d="M308 200 Q316 146 312 106 Q310 143 320 200Z"/><path d="M332 200 Q340 152 336 112 Q334 148 344 200Z"/><path d="M356 200 Q364 148 360 108 Q358 145 368 200Z"/><path d="M380 200 Q388 150 384 110 Q382 147 392 200Z"/><path d="M404 200 Q412 146 408 106 Q406 143 416 200Z"/><path d="M428 200 Q436 152 432 112 Q430 148 440 200Z"/><path d="M452 200 Q460 148 456 108 Q454 145 464 200Z"/><path d="M476 200 Q484 150 480 110 Q478 147 488 200Z"/><path d="M500 200 Q508 146 504 108 Q502 143 512 200Z"/><path d="M524 200 Q532 152 528 112 Q526 148 536 200Z"/><path d="M548 200 Q556 148 552 108 Q550 145 560 200Z"/><path d="M572 200 Q580 150 576 110 Q574 147 584 200Z"/><path d="M596 200 Q604 146 600 106 Q598 143 608 200Z"/><path d="M620 200 Q628 152 624 112 Q622 148 632 200Z"/><path d="M644 200 Q652 148 648 108 Q646 145 656 200Z"/><path d="M668 200 Q676 150 672 110 Q670 147 680 200Z"/><path d="M692 200 Q700 146 696 106 Q694 143 704 200Z"/><path d="M716 200 Q724 152 720 112 Q718 148 728 200Z"/><path d="M740 200 Q748 148 744 108 Q742 145 752 200Z"/><path d="M764 200 Q772 150 768 110 Q766 147 776 200Z"/><path d="M788 200 Q796 146 792 106 Q790 143 800 200Z"/><path d="M812 200 Q820 152 816 112 Q814 148 824 200Z"/><path d="M836 200 Q844 148 840 108 Q838 145 848 200Z"/><path d="M860 200 Q868 150 864 110 Q862 147 872 200Z"/><path d="M884 200 Q892 146 888 106 Q886 143 896 200Z"/><path d="M908 200 Q916 152 912 112 Q910 148 920 200Z"/><path d="M932 200 Q940 148 936 108 Q934 145 944 200Z"/><path d="M956 200 Q964 150 960 110 Q958 147 968 200Z"/><path d="M980 200 Q988 146 984 106 Q982 143 992 200Z"/><path d="M1004 200 Q1012 152 1008 112 Q1006 148 1016 200Z"/><path d="M1028 200 Q1036 148 1032 108 Q1030 145 1040 200Z"/><path d="M1052 200 Q1060 150 1056 110 Q1054 147 1064 200Z"/><path d="M1076 200 Q1084 146 1080 108 Q1078 143 1088 200Z"/>
+    </g>
+    <g fill="#163820" opacity=".85">
+      <path d="M10 200 Q18 162 14 132 Q12 158 22 200Z"/><path d="M32 200 Q40 158 36 128 Q34 155 44 200Z"/><path d="M54 200 Q62 162 58 132 Q56 158 66 200Z"/><path d="M76 200 Q84 158 80 128 Q78 155 88 200Z"/><path d="M98 200 Q106 162 102 132 Q100 158 110 200Z"/><path d="M120 200 Q128 158 124 128 Q122 155 132 200Z"/><path d="M142 200 Q150 162 146 132 Q144 158 154 200Z"/><path d="M164 200 Q172 158 168 128 Q166 155 176 200Z"/><path d="M186 200 Q194 162 190 132 Q188 158 198 200Z"/><path d="M208 200 Q216 158 212 128 Q210 155 220 200Z"/><path d="M230 200 Q238 162 234 132 Q232 158 242 200Z"/><path d="M252 200 Q260 158 256 128 Q254 155 264 200Z"/><path d="M274 200 Q282 162 278 132 Q276 158 286 200Z"/><path d="M296 200 Q304 158 300 128 Q298 155 308 200Z"/><path d="M318 200 Q326 162 322 132 Q320 158 330 200Z"/><path d="M340 200 Q348 158 344 128 Q342 155 352 200Z"/><path d="M362 200 Q370 162 366 132 Q364 158 374 200Z"/><path d="M384 200 Q392 158 388 128 Q386 155 396 200Z"/><path d="M406 200 Q414 162 410 132 Q408 158 418 200Z"/><path d="M428 200 Q436 158 432 128 Q430 155 440 200Z"/><path d="M450 200 Q458 162 454 132 Q452 158 462 200Z"/><path d="M472 200 Q480 158 476 128 Q474 155 484 200Z"/><path d="M494 200 Q502 162 498 132 Q496 158 506 200Z"/><path d="M516 200 Q524 158 520 128 Q518 155 528 200Z"/><path d="M538 200 Q546 162 542 132 Q540 158 550 200Z"/><path d="M560 200 Q568 158 564 128 Q562 155 572 200Z"/><path d="M582 200 Q590 162 586 132 Q584 158 594 200Z"/><path d="M604 200 Q612 158 608 128 Q606 155 616 200Z"/><path d="M626 200 Q634 162 630 132 Q628 158 638 200Z"/><path d="M648 200 Q656 158 652 128 Q650 155 660 200Z"/><path d="M670 200 Q678 162 674 132 Q672 158 682 200Z"/><path d="M692 200 Q700 158 696 128 Q694 155 704 200Z"/><path d="M714 200 Q722 162 718 132 Q716 158 726 200Z"/><path d="M736 200 Q744 158 740 128 Q738 155 748 200Z"/><path d="M758 200 Q766 162 762 132 Q760 158 770 200Z"/><path d="M780 200 Q788 158 784 128 Q782 155 792 200Z"/><path d="M802 200 Q810 162 806 132 Q804 158 814 200Z"/><path d="M824 200 Q832 158 828 128 Q826 155 836 200Z"/><path d="M846 200 Q854 162 850 132 Q848 158 858 200Z"/><path d="M868 200 Q876 158 872 128 Q870 155 880 200Z"/><path d="M890 200 Q898 162 894 132 Q892 158 902 200Z"/><path d="M912 200 Q920 158 916 128 Q914 155 924 200Z"/><path d="M934 200 Q942 162 938 132 Q936 158 946 200Z"/><path d="M956 200 Q964 158 960 128 Q958 155 968 200Z"/><path d="M978 200 Q986 162 982 132 Q980 158 990 200Z"/><path d="M1000 200 Q1008 158 1004 128 Q1002 155 1012 200Z"/><path d="M1022 200 Q1030 162 1026 132 Q1024 158 1034 200Z"/><path d="M1044 200 Q1052 158 1048 128 Q1046 155 1056 200Z"/><path d="M1066 200 Q1074 162 1070 132 Q1068 158 1078 200Z"/><path d="M1088 200 Q1096 158 1092 128 Q1090 155 1100 200Z"/>
+    </g>
+    <g fill="#0d1f10" opacity=".95">
+      <path d="M0 200 Q5 178 2 162 Q1 176 8 200Z"/><path d="M14 200 Q19 175 16 158 Q15 173 22 200Z"/><path d="M28 200 Q33 178 30 162 Q29 176 36 200Z"/><path d="M42 200 Q47 175 44 158 Q43 173 50 200Z"/><path d="M56 200 Q61 178 58 162 Q57 176 64 200Z"/><path d="M70 200 Q75 175 72 158 Q71 173 78 200Z"/><path d="M84 200 Q89 178 86 162 Q85 176 92 200Z"/><path d="M98 200 Q103 175 100 158 Q99 173 106 200Z"/><path d="M112 200 Q117 178 114 162 Q113 176 120 200Z"/><path d="M126 200 Q131 175 128 158 Q127 173 134 200Z"/><path d="M140 200 Q145 178 142 162 Q141 176 148 200Z"/><path d="M154 200 Q159 175 156 158 Q155 173 162 200Z"/><path d="M168 200 Q173 178 170 162 Q169 176 176 200Z"/><path d="M182 200 Q187 175 184 158 Q183 173 190 200Z"/><path d="M196 200 Q201 178 198 162 Q197 176 204 200Z"/><path d="M210 200 Q215 175 212 158 Q211 173 218 200Z"/><path d="M224 200 Q229 178 226 162 Q225 176 232 200Z"/><path d="M238 200 Q243 175 240 158 Q239 173 246 200Z"/><path d="M252 200 Q257 178 254 162 Q253 176 260 200Z"/><path d="M266 200 Q271 175 268 158 Q267 173 274 200Z"/><path d="M280 200 Q285 178 282 162 Q281 176 288 200Z"/><path d="M294 200 Q299 175 296 158 Q295 173 302 200Z"/><path d="M308 200 Q313 178 310 162 Q309 176 316 200Z"/><path d="M322 200 Q327 175 324 158 Q323 173 330 200Z"/><path d="M336 200 Q341 178 338 162 Q337 176 344 200Z"/><path d="M350 200 Q355 175 352 158 Q351 173 358 200Z"/><path d="M364 200 Q369 178 366 162 Q365 176 372 200Z"/><path d="M378 200 Q383 175 380 158 Q379 173 386 200Z"/><path d="M392 200 Q397 178 394 162 Q393 176 400 200Z"/><path d="M406 200 Q411 175 408 158 Q407 173 414 200Z"/><path d="M420 200 Q425 178 422 162 Q421 176 428 200Z"/><path d="M434 200 Q439 175 436 158 Q435 173 442 200Z"/><path d="M448 200 Q453 178 450 162 Q449 176 456 200Z"/><path d="M462 200 Q467 175 464 158 Q463 173 470 200Z"/><path d="M476 200 Q481 178 478 162 Q477 176 484 200Z"/><path d="M490 200 Q495 175 492 158 Q491 173 498 200Z"/><path d="M504 200 Q509 178 506 162 Q505 176 512 200Z"/><path d="M518 200 Q523 175 520 158 Q519 173 526 200Z"/><path d="M532 200 Q537 178 534 162 Q533 176 540 200Z"/><path d="M546 200 Q551 175 548 158 Q547 173 554 200Z"/><path d="M560 200 Q565 178 562 162 Q561 176 568 200Z"/><path d="M574 200 Q579 175 576 158 Q575 173 582 200Z"/><path d="M588 200 Q593 178 590 162 Q589 176 596 200Z"/><path d="M602 200 Q607 175 604 158 Q603 173 610 200Z"/><path d="M616 200 Q621 178 618 162 Q617 176 624 200Z"/><path d="M630 200 Q635 175 632 158 Q631 173 638 200Z"/><path d="M644 200 Q649 178 646 162 Q645 176 652 200Z"/><path d="M658 200 Q663 175 660 158 Q659 173 666 200Z"/><path d="M672 200 Q677 178 674 162 Q673 176 680 200Z"/><path d="M686 200 Q691 175 688 158 Q687 173 694 200Z"/><path d="M700 200 Q705 178 702 162 Q701 176 708 200Z"/><path d="M714 200 Q719 178 716 162 Q715 176 722 200Z"/><path d="M728 200 Q733 175 730 158 Q729 173 736 200Z"/><path d="M742 200 Q747 178 744 162 Q743 176 750 200Z"/><path d="M756 200 Q761 175 758 158 Q757 173 764 200Z"/><path d="M770 200 Q775 178 772 162 Q771 176 778 200Z"/><path d="M784 200 Q789 175 786 158 Q785 173 792 200Z"/><path d="M798 200 Q803 178 800 162 Q799 176 806 200Z"/><path d="M812 200 Q817 178 814 162 Q813 176 820 200Z"/><path d="M826 200 Q831 175 828 158 Q827 173 834 200Z"/><path d="M840 200 Q845 178 842 162 Q841 176 848 200Z"/><path d="M854 200 Q859 175 856 158 Q855 173 862 200Z"/><path d="M868 200 Q873 178 870 162 Q869 176 876 200Z"/><path d="M882 200 Q887 175 884 158 Q883 173 890 200Z"/><path d="M896 200 Q901 178 898 162 Q897 176 904 200Z"/><path d="M910 200 Q915 175 912 158 Q911 173 918 200Z"/><path d="M924 200 Q929 178 926 162 Q925 176 932 200Z"/><path d="M938 200 Q943 175 940 158 Q939 173 946 200Z"/><path d="M952 200 Q957 178 954 162 Q953 176 960 200Z"/><path d="M966 200 Q971 175 968 158 Q967 173 974 200Z"/><path d="M980 200 Q985 178 982 162 Q981 176 988 200Z"/><path d="M994 200 Q999 175 996 158 Q995 173 1002 200Z"/><path d="M1008 200 Q1013 178 1010 162 Q1009 176 1016 200Z"/><path d="M1022 200 Q1027 175 1024 158 Q1023 173 1030 200Z"/><path d="M1036 200 Q1041 178 1038 162 Q1037 176 1044 200Z"/><path d="M1050 200 Q1055 175 1052 158 Q1051 173 1058 200Z"/><path d="M1064 200 Q1069 178 1066 162 Q1065 176 1072 200Z"/><path d="M1078 200 Q1083 175 1080 158 Q1079 173 1086 200Z"/><path d="M1092 200 Q1097 178 1094 162 Q1093 176 1100 200Z"/>
+    </g>
+  </svg>
+
+  <div id="pts"></div>
+</div>
+
+<!-- ═══ PAGE CONTENT ═══ -->
+<div class="page">
+  <div class="shell">
+    <div class="card">
+
+      <!-- LOGO BANNER -->
+      <div class="brand">
+        <img class="logo" src="logo_frey_gartenbau.jpg" alt="Frey Gartenbau" />
+      </div>
+
+      <!-- CONTENT -->
+      <div class="card-inner" id="mainContent">
+        <h1 class="headline">Wie zufrieden waren Sie<br>mit unserer Arbeit?</h1>
+        <p class="subline">Ihre Meinung hilft uns, noch besser zu werden.</p>
+
+        <div class="stars" id="stars"></div>
+        <div class="pill-wrap"><span class="pill" id="pill"></span></div>
+
+        <div class="form-panel" id="formPanel">
+          <div class="form-title">Was können wir verbessern?</div>
+          <div class="form-subtitle">Ihr Feedback wird vertraulich behandelt.</div>
+          <label class="field-label" for="msg">Ihre Nachricht</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h14a2 2 0 0 1 2 2v9.5a2 2 0 0 1-2 2h-6l-4.5 3.5V17H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+            <textarea id="msg" rows="4" placeholder="Was hat nicht Ihren Erwartungen entsprochen?" minlength="5" required></textarea>
+          </div>
+          <label class="field-label" for="mail">E-Mail (optional)</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v.01L12 12l8-4.99V7H4z"/></svg>
+            <input id="mail" type="email" placeholder="name@beispiel.com" autocomplete="email"/>
+          </div>
+          <button class="submit-btn" id="submitBtn">Feedback absenden</button>
+          <div class="status-msg" id="statusMsg"></div>
+        </div>
+      </div>
+
+      <!-- THANK YOU SCREEN (hidden until submit) -->
+      <div class="thankyou" id="thankyou">
+        <div class="ty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+        </div>
+        <div class="ty-title">Danke für Ihr Feedback!</div>
+        <div class="ty-divider"></div>
+        <p class="ty-sub">Wir sind froh um jede Rückmeldung.</p>
+      </div>
+    </div>
+
+    <div class="footer-text">Frey Gartenbau · Vielen Dank für Ihr Vertrauen</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  emailjs.init("0_r2A-haXwXfZx32f");
+
+  /* particles */
+  (function(){
+    const w=document.getElementById("pts");
+    for(let i=0;i<20;i++){
+      const d=document.createElement("div");d.className="particle";
+      const s=Math.random()*2.5+1.2,dx=(Math.random()-.5)*100;
+      d.style.cssText=`left:${Math.random()*100}%;bottom:${Math.random()*18}%;width:${s}px;height:${s}px;--dx:${dx}px;animation-duration:${Math.random()*18+12}s;animation-delay:-${Math.random()*18}s;`;
+      w.appendChild(d);
+    }
+  })();
+
+  /* stars */
+  const GOOGLE_URL="https://search.google.com/local/writereview?placeid=ChIJ5QYmLOMVkEcR8MORKwt1BmY";
+  const LBL=["1 Stern","2 Sterne","3 Sterne","4 Sterne","5 Sterne"];
+  const starsEl=document.getElementById("stars"),pillEl=document.getElementById("pill");
+  const formPanel=document.getElementById("formPanel"),msgEl=document.getElementById("msg");
+  const mailEl=document.getElementById("mail"),submitBtn=document.getElementById("submitBtn");
+  const statusMsg=document.getElementById("statusMsg");
+  const mainContent=document.getElementById("mainContent");
+  const thankyou=document.getElementById("thankyou");
+  let cur=0;
+
+  function showThankyou(){
+    mainContent.style.display="none";
+    thankyou.classList.add("visible");
+    document.querySelector(".card").scrollIntoView({behavior:"smooth",block:"center"});
+  }
+
+  function showPill(t,g=false){pillEl.textContent=t;pillEl.classList.toggle("gold",g);pillEl.classList.add("show");}
+  function hidePill(){pillEl.classList.remove("show");}
+  function paint(n,prev=false){[...starsEl.children].forEach((b,i)=>{b.classList.remove("lit","preview");if(i<n)b.classList.add(prev?"preview":"lit");});}
+  function resetSt(){statusMsg.textContent="";statusMsg.className="status-msg";}
+
+  for(let v=1;v<=5;v++){
+    const btn=document.createElement("button");
+    btn.type="button";btn.className="star-btn";
+    btn.innerHTML=`<svg class="star-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5l2.94 6.06 6.69.97-4.84 4.71 1.14 6.64L12 17.9l-5.93 3.12 1.14-6.64L2.37 9.53l6.69-.97L12 2.5z"/></svg><span class="star-num">${v}</span>`;
+    btn.addEventListener("mouseenter",()=>{paint(v,true);showPill(LBL[v-1],v>=4);});
+    btn.addEventListener("mouseleave",()=>{paint(cur);cur>0?showPill(LBL[cur-1],cur>=4):hidePill();});
+    btn.addEventListener("click",()=>{
+      cur=v;paint(v);showPill(LBL[v-1],v>=4);resetSt();
+      if(v>=4){window.location.href=GOOGLE_URL;return;}
+      formPanel.classList.add("visible");
+      setTimeout(()=>msgEl.focus(),60);
+    });
+    starsEl.appendChild(btn);
+  }
+
+  submitBtn.addEventListener("click",async()=>{
+    const t=msgEl.value.trim();
+    if(t.length<5){statusMsg.textContent="Bitte mindestens 5 Zeichen eingeben.";statusMsg.className="status-msg visible error";return;}
+    resetSt();submitBtn.disabled=true;
+    submitBtn.textContent="Wird gesendet…";
+
+    try{
+      await emailjs.send("service_cita1r5","template_8r8epan",{
+        rating: cur + " / 5 Sterne",
+        message: t,
+        email: mailEl.value.trim() || "Keine Angabe",
+        date: new Date().toLocaleString("de-CH")
+      });
+      showThankyou();
+    }catch(err){
+      statusMsg.textContent="Fehler beim Senden. Bitte später nochmals versuchen.";
+      statusMsg.className="status-msg visible error";
+      submitBtn.textContent="Feedback absenden";
+    }finally{
+      submitBtn.disabled=false;
+    }
+  });
+</script>
+</body>
+</html>
